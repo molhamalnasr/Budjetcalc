@@ -15,6 +15,15 @@ var budgetController = (function(){
         this.value = value;
     };
     
+    var calculateTotal = function(type){
+        var sum = 0;
+        
+        data.allItemes[type].forEach(function(cur){
+            sum += cur.value;
+        });
+        data.totals[type] = sum;
+    };
+    
     var data = {
         allItemes: {
             exp: [],
@@ -23,7 +32,9 @@ var budgetController = (function(){
         totals:{
             exp: 0,
             inc: 0
-        }
+        },
+        budget: 0,
+        percetage: 0
     };
     
     return{
@@ -51,6 +62,27 @@ var budgetController = (function(){
             
             //Return the new element
             return newItem;
+        },
+        calculateBudget: function(){
+            
+            //calculate income and expenses
+            calculateTotal('inc');
+            calculateTotal('exp');
+            
+            //calculate the budget
+            data.budget = data.totals.inc - data.totals.exp;
+            
+            //calculate the percentage
+            data.percetage = (data.totals.exp / data.totals.inc) * 100;
+            
+        },
+        getBudget: function(){
+            return {
+                budget: data.budget,
+                totalInc: data.totals.inc,
+                totalExp: data.totals.exp,
+                percentage: data.percetage
+            };
         },
         testing: function(){
             return data;
@@ -138,7 +170,18 @@ var controller = (function(budgetCtrl, UICtrl){
         });
     };
     
-    
+    var updateBudget = function(){
+        
+        //1. calculate the Budget
+        budgetCtrl.calculateBudget();
+        
+        //2. return the Budget
+        var budget = budgetCtrl.getBudget();
+        
+        //3. display the Budget on the UI
+        console.log(budget);
+        
+    };
     
     var ctrlAddItem = function(){
         var input, newItem;
@@ -159,10 +202,8 @@ var controller = (function(budgetCtrl, UICtrl){
             
         }
         
-        //4. calculate the budget
-        
-        //5. Display the budget on the UI
-        
+        //4. calculate and update budget
+        updateBudget();
         
     };
     
